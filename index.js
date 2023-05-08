@@ -36,6 +36,14 @@ async function run() {
           res.send(result); 
       })
       
+    app.get('/users/:id', async(req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      console.log(query)
+      const user = await userCollections.findOne(query)
+      res.send(user)
+})
+    
     //   data insert on database
       app.post('/users', async (req, res) => {
           const user = req.body;
@@ -43,6 +51,24 @@ async function run() {
           const result = await userCollections.insertOne(user)
           res.send(result)
       })
+    
+    // data updated function 
+
+    app.put('/users/:id', async (req, res) => {
+      const id = req.params.id
+      const user = req.body
+      console.log(id, user)
+      const filter = { _id: new ObjectId(id) }
+      const option = { upsert: true }
+      const updatedUser = {
+        $set:{
+          name: user.name,
+          email:user.email
+        }
+      }
+      const result = await userCollections.updateOne(filter, updatedUser, option)
+      res.send(result)
+})
     
 // for delete database import objectId mannually
     app.delete('/users/:id', async(req, res) => {
