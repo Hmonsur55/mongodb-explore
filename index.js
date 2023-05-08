@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const cors =require('cors')
 const port =process.env.PORT || 5000
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = "mongodb+srv://farukahmed0762:ujn7Yqma8Xc9JufM@cluster1.9cknc8q.mongodb.net/?retryWrites=true&w=majority";
 
 
@@ -26,16 +26,32 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
       await client.connect();
+      // this is for all method eta baire rkaha hoise jeno sob gulate pay
+      const database = client.db("usersDB");
+      const userCollections = database.collection("users");
+    //   data read on API
+      app.get('/users', async(req, res) => {
+          const cursor = userCollections.find()
+          const result = await cursor.toArray()
+          res.send(result); 
+      })
       
-    const database = client.db("usersDB");
-    const userCollections = database.collection("users");
-
+    //   data insert on database
       app.post('/users', async (req, res) => {
           const user = req.body;
           console.log('new user', user)
           const result = await userCollections.insertOne(user)
           res.send(result)
       })
+    
+// for delete database import objectId mannually
+    app.delete('/users/:id', async(req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await userCollections.deleteOne(query);
+      res.send(result)
+      console.log('please delete database form', id)
+    })
        
 
     // Send a ping to confirm a successful connection
